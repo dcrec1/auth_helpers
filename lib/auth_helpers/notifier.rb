@@ -16,9 +16,6 @@ module AuthHelpers
   class Notifier < ActionMailer::Base
     class << self; attr_accessor :sender, :content_type end
 
-    self.content_type  = 'text/html'
-    self.template_root = File.join(File.dirname(__FILE__), '..', '..', 'views')
-
     def new_account(record)
       @subject = I18n.t 'actionmailer.auth_helpers.new_account', :default => 'New account'
       set_ivars!(:confirmable, record)
@@ -52,3 +49,6 @@ module AuthHelpers
 
   end
 end
+
+AuthHelpers::Notifier.content_type  = 'text/html'
+AuthHelpers::Notifier.template_root = File.join(File.dirname(__FILE__), '..', '..', 'views')
