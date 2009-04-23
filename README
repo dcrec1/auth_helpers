@@ -1,0 +1,176 @@
+AuthHelpers
+License: MIT
+Version: 0.1
+
+You can also read this README in pretty html at the GitHub project Wiki page:
+
+  http://wiki.github.com/josevalim/auth_helpers
+
+Description
+-----------
+
+AuthHelpers is a collection of modules to include in your model to deal with
+authentication.
+
+Why? Authentication is something that you need to do right since the beginning,
+otherwise it will haunt you until the end of the project.
+
+Gladly, Rails community has two awesome gems for this: Clearance and AuthLogic.
+While the first gives you a simple but full, ready-to-go engine, the second
+is a complex, fully featured authencation library.
+
+While working in different projects, requisites change and sometimes you need
+something that works between something simple and something fully featured. This
+is the scope of AuthHelpers: you have modules and you include them where you
+want.
+
+Installation
+------------
+
+Install AuthHelpers is very easy. It is stored in GitHub, so just run the
+following:
+
+   gem sources -a http://gems.github.com
+   sudo gem install josevalim-auth_helpers
+
+If you want it as plugin, just do:
+
+   script/plugin install git://github.com/josevalim/auth_helpers.git
+
+Modules
+-------
+
+  class Account < ActiveRecord::Base
+    SALT = APP_NAME
+
+    include AuthHelpers::Model::Associatable
+    include AuthHelpers::Model::Authenticable
+    include AuthHelpers::Model::Confirmable
+    include AuthHelpers::Model::Recoverable
+    include AuthHelpers::Model::Rememberable
+    include AuthHelpers::Model::Validatable
+  end
+
+== Associatable
+
+This module automatically creates a belongs_to association for the first *_id
+in the table. This module exists because, whenever it's possible, I follow the
+pattern of having an account model and then all accountable objects uses this
+model (it autodetects polymorphic associations too).
+
+== Authenticable
+
+It adds password, salt and encrypt behavior. Adds find_and_authenticate class
+method and authenticate?(password) as instance method. It requires a constant
+named SALT set in your model. 
+
+== Confirmable
+
+Adds the confirmation_code handling. It sends an e-mail to the user on account
+creation, and adds find_and_confirm, find_and_resend_confirmation_code as class
+methods and confirmed? and confirm as instance methods.
+
+When used with Authenticable, also sends an e-mail with a new confirmation code
+whenever the user changes his e-mail address.
+
+== Recoverable
+
+Adds the reset_password_code handling. Adds find_and_resend_confirmation_code
+and find_and_reset_password class methods.
+
+== Rememberable
+
+Manages a token to be stored in cookies. Adds find_by_remember_me_token (which
+only returns a record if the token hasn't expired yet), remember_me! and forget_me!
+methods.
+
+Whenever used with Authentication, it handles the remember_me method inside
+find_and_authenticate.
+
+== Validatable
+
+Add validations to your e-mail and password. If you have a constant in your model
+named SCOPE, it will add this to validate_uniqueness_of.
+
+Specs
+-----
+
+All those modules comes with specs, that's why the library has not tests per se.
+So if you want to test the Account model declared above, just do:
+
+  require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+
+  describe Account do
+    include AuthHelpers::Spec::Associatable
+    include AuthHelpers::Spec::Authenticable
+    include AuthHelpers::Spec::Confirmable
+    include AuthHelpers::Spec::Recoverable
+    include AuthHelpers::Spec::Rememberable
+    include AuthHelpers::Spec::Validatable
+
+    before(:each) do
+      @valid_attributes = {
+        :email                 => "is.valid@email.com",
+        :email_confirmation    => "is.valid@email.com",
+        :password              => "abcdef",
+        :password_confirmation => "abcdef"
+      }
+    end
+
+    it "should create a new instance given valid attributes" do
+      Account.create!(@valid_attributes)
+    end
+  end
+The only requisite you have for the tests is to have a @valid_attributes instance
+variable set with a hash of valid attributes. You also need Remarkable to run
+those tests.
+
+Migrations
+----------
+
+While AuthHelpers gives you the flexibity to choose which model you want to add
+your validations, it takes from you the freedom to choose what are the column
+names. However it makes easier to create your migrations. This is a migration up
+example for the Account model above:
+
+  create_table :accounts do |t|
+    t.references :accountable, :polymorphic => true
+    t.extend AuthHelpers::Migration
+
+    t.authenticable
+    t.confirmable
+    t.recoverable
+    t.rememberable
+    t.timestamps
+  end
+
+Notifications-------------
+
+AuthHelpers also comes with default notification files. At some point you will
+want to prettify your notification views, so you just need to do:
+
+  AuthHelpers::Notifier.sender = %("José Valim" <jose.valim@gmail.com>)
+  AuthHelpers::Notifier.template_root = "#{RAILS_ROOT}/app/views"
+
+Then make a copy of the plugin views folder to your app/views and start to work
+on them.
+
+Need more?
+----------
+
+I'm open to extend this library to include more modules. So if you want an
+Invitable module, fork the project, add it and then send it to me. I will pull
+it in gladly.
+
+Example app
+-----------
+
+http://github.com/josevalim/starter
+
+Bugs and Feedback
+-----------------
+
+If you discover any bugs, please send an e-mail to jose.valim@gmail.com
+
+Copyright (c) 2009 José Valim
+http://josevalim.blogspot.com/
