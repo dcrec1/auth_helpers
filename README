@@ -98,8 +98,6 @@ Specs
 All those modules comes with specs, that's why the library has not tests per se.
 So if you want to test the Account model declared above, just do:
 
-  require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-
   describe Account do
     include AuthHelpers::Spec::Associatable
     include AuthHelpers::Spec::Authenticable
@@ -121,6 +119,7 @@ So if you want to test the Account model declared above, just do:
       Account.create!(@valid_attributes)
     end
   end
+
 The only requisite you have for the tests is to have a @valid_attributes instance
 variable set with a hash of valid attributes. You also need Remarkable to run
 those tests.
