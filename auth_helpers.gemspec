@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name     = "auth_helpers"
-  s.version  = "0.1.0"
+  s.version  = "0.1.1"
   s.date     = "2009-04-23"
   s.summary  = "AuthHelpers is a collection of modules to include in your model to deal with authentication."
   s.email    = "jose.valim@gmail.com"
@@ -28,7 +28,11 @@ Gem::Specification.new do |s|
     "lib/auth_helpers/spec/notifier.rb",
     "lib/auth_helpers/spec/recoverable.rb",
     "lib/auth_helpers/spec/rememberable.rb",
-    "lib/auth_helpers/spec/validatable.rb"
+    "lib/auth_helpers/spec/validatable.rb",
+    "views/auth_helpers/notifier/confirmation_code.erb",
+    "views/auth_helpers/notifier/email_changed.erb",
+    "views/auth_helpers/notifier/new_account.erb",
+    "views/auth_helpers/notifier/reset_password.erb"
   ]
   s.rdoc_options = ["--main", "README"]
   s.extra_rdoc_files = ["README"]
