@@ -1,6 +1,6 @@
 AuthHelpers
 License: MIT
-Version: 0.1
+Version: 0.2
 
 You can also read this README in pretty html at the GitHub project Wiki page:
 
@@ -143,7 +143,8 @@ example for the Account model above:
     t.timestamps
   end
 
-Notifications-------------
+Notifications
+-------------
 
 AuthHelpers also comes with default notification files. At some point you will
 want to prettify your notification views, so you just need to do:
