@@ -32,6 +32,12 @@ module AuthHelpers
         self.save(false)
       end
 
+      # Returns a hash to be store in session
+      #
+      def remember_me_cookie_hash
+        { :value => self.token, :expires => self.token_expires_at }
+      end
+
       # Change if you want to set another token_expiration_interval or add
       # custom logic (admin has one day token, clients have 2 weeks).
       #

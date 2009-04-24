@@ -17,6 +17,12 @@ module AuthHelpers
               @rememberable.token_expires_at.should_not be_nil
             end
 
+            it 'should return a remember_me cookie hash' do
+              @rememberable.remember_me!
+              @rememberable.remember_me_cookie_hash[:value].should == @rememberable.token
+              @rememberable.remember_me_cookie_hash[:expires].should == @rememberable.token_expires_at
+            end
+
             it 'should forget the remember me token' do
               @rememberable.remember_me!
               @rememberable.forget_me!
