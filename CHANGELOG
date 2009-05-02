@@ -1,17 +1,12 @@
-# Version 0.1
+# Version 0.2
 
 * First version with the following modules:
 
   AuthHelpers::Model::Associatable
-  AuthHelpers::Model::Authenticable
   AuthHelpers::Model::Confirmable
   AuthHelpers::Model::Recoverable
-  AuthHelpers::Model::Rememberable
-  AuthHelpers::Model::Validatable
+  AuthHelpers::Model::Updatable
 
 Plus:
 
   AuthHelpers::Notifier
-  AuthHelpers::Migration
-
-The first to deal with Notifications and the second with migrations.

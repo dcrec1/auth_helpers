@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   s.name     = "auth_helpers"
-  s.version  = "0.1.2"
+  s.version  = "0.2.0"
   s.date     = "2009-04-24"
-  s.summary  = "AuthHelpers is a collection of modules to include in your model to deal with authentication."
+  s.summary  = "AuthHelpers is a collection of modules to improve your Authlogic models."
   s.email    = "jose.valim@gmail.com"
   s.homepage = "http://github.com/josevalim/auth_helpers"
-  s.description = "AuthHelpers is a collection of modules to include in your model to deal with authentication."
+  s.description = "AuthHelpers is a collection of modules to improve your Authlogic models."
   s.has_rdoc = true
   s.authors  = [ "José Valim" ]
   s.files    = [
@@ -14,27 +14,21 @@ Gem::Specification.new do |s|
     "README",
     "init.rb",
     "lib/auth_helpers.rb",
-    "lib/auth_helpers/migration.rb",
     "lib/auth_helpers/notifier.rb",
     "lib/auth_helpers/model/associatable.rb",
-    "lib/auth_helpers/model/authenticable.rb",
     "lib/auth_helpers/model/confirmable.rb",
     "lib/auth_helpers/model/recoverable.rb",
-    "lib/auth_helpers/model/rememberable.rb",
-    "lib/auth_helpers/model/validatable.rb",
-    "lib/auth_helpers/spec/associatable.rb",
-    "lib/auth_helpers/spec/authenticable.rb",
+    "lib/auth_helpers/model/updatable.rb",
     "lib/auth_helpers/spec/confirmable.rb",
     "lib/auth_helpers/spec/notifier.rb",
     "lib/auth_helpers/spec/recoverable.rb",
-    "lib/auth_helpers/spec/rememberable.rb",
-    "lib/auth_helpers/spec/validatable.rb",
-    "views/auth_helpers/notifier/confirmation_code.erb",
-    "views/auth_helpers/notifier/email_changed.erb",
-    "views/auth_helpers/notifier/new_account.erb",
-    "views/auth_helpers/notifier/reset_password.erb"
+    "lib/auth_helpers/spec/updatable.rb",
+    "views/auth_helpers/notifier/create_confirmation.erb",
+    "views/auth_helpers/notifier/resend_confirmation.erb",
+    "views/auth_helpers/notifier/reset_password.erb",
+    "views/auth_helpers/notifier/update_confirmation.erb"
   ]
   s.rdoc_options = ["--main", "README"]
   s.extra_rdoc_files = ["README"]
-  s.add_dependency("remarkable_rails", ">= 3.0.7")
+  s.add_dependency("authlogic")
 end

@@ -11,6 +11,11 @@ module AuthHelpers
     # Finally, if the *_id in the table has also *_type. It considers a polymorphic
     # association.
     #
+    # Whenever using this method with polymorphic association, don't forget to
+    # set the validation scope in AuthLogic.
+    #
+    #   a.validations_scope = :accountable_type
+    #
     module Associatable
       def self.included(base)
         column = base.columns.detect{|c| c.name =~ /_id$/ }

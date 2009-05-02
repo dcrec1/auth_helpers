@@ -10,14 +10,7 @@ module AuthHelpers
               @confirmable = base.described_class.create!(@valid_attributes)
             end
 
-            it { should_not allow_mass_assignment_of(:confirmation_code) }
-
-            it 'should remove confirmation code' do
-              @confirmable.confirm!
-              @confirmable.confirmation_code.should be_nil
-            end
-
-            it 'should set the date account was confirmed' do
+            it 'should set the confirmation date on #confirm!' do
               @confirmable.confirmed_at.should be_nil
               @confirmable.confirm!
               @confirmable.confirmed_at.should_not be_nil
@@ -32,62 +25,63 @@ module AuthHelpers
             end
 
             describe 'on create' do
-              it "should set confirmation_code" do
-                @confirmable.confirmation_code.length.should == 40
+              it "should set confirmed_at to nil" do
+                @confirmable.confirmed_at.should be_nil
               end
 
               it "should set confirmation_sent_at" do
                 @confirmable.confirmation_sent_at.should_not be_blank
               end
 
-              it "should send a new account notification" do
+              it "should send create confirmation notification" do
                 ActionMailer::Base.deliveries.length.should == 1
               end
             end
 
-            describe 'with a valid confirmation code' do
+            describe 'with a valid perishable token' do
               it "should confirm his account" do
-                record = base.described_class.find_and_confirm(@confirmable.confirmation_code)
+                record = base.described_class.find_and_confirm(:perishable_token => @confirmable.perishable_token)
                 record.errors.should be_empty
               end
 
-              it "should clean confirmation code" do
-                base.described_class.find_and_confirm(@confirmable.confirmation_code)
+              it "should set confirmation date" do
+                record = base.described_class.find_and_confirm(:perishable_token => @confirmable.perishable_token)
                 @confirmable.reload
-                @confirmable.confirmation_code.should be_nil
-              end
-
-              it "should set confirmed_at date" do
-                record = base.described_class.find_and_confirm(@confirmable.confirmation_code)
-                record.confirmed_at.should_not be_nil
+                @confirmable.confirmed_at.should_not be_nil
               end
             end
 
-            describe 'with an invalid confirmation code' do
+            describe 'with an invalid perishable token' do
               it "should set an error message" do
-                record = base.described_class.find_and_confirm('invalid_code')
-                record.errors.on(:confirmation_code).should == record.errors.generate_message(:confirmation_code, :invalid)
+                record = base.described_class.find_and_confirm(:perishable_token => "invalid token")
+                record.errors.on(:perishable_token).should == record.errors.generate_message(:perishable_token, :invalid_confirmation, :default => :invalid)
+              end
+
+              it "should return a new record with the perishable token set" do
+                record = base.described_class.find_and_confirm(:perishable_token => "invalid token")
+                record.should be_new_record
+                record.perishable_token.should == "invalid token"
               end
             end
 
             describe 'when lost confirmation code' do
               before(:each){ ActionMailer::Base.deliveries = [] }
 
-              it "should resend confirmation code if account is not confirmed" do
-                record = base.described_class.find_and_resend_confirmation_code(:email => @confirmable.email)
+              it "should resend confirmation instructions if account is not confirmed" do
+                record = base.described_class.find_and_resend_confirmation_instructions(:email => @confirmable.email)
                 record.errors.should be_empty
                 ActionMailer::Base.deliveries.length.should == 1
               end
 
-              it "should not resend confirmation code if account is confirmed" do
+              it "should not resend confirmation instructions if account is confirmed" do
                 @confirmable.confirm!
-                record = base.described_class.find_and_resend_confirmation_code(:email => @confirmable.email)
+                record = base.described_class.find_and_resend_confirmation_instructions(:email => @confirmable.email)
                 record.errors.on(:email).should == record.errors.generate_message(:email, :already_confirmed)
                 ActionMailer::Base.deliveries.length.should == 0
               end
 
-              it "should show a error message on resend confirmation code if e-mail is not valid" do
-                record = base.described_class.find_and_resend_confirmation_code(:email => 'invalid')
+              it "should show a error message on resend confirmation instructions if e-mail is not valid" do
+                record = base.described_class.find_and_resend_confirmation_instructions(:email => 'invalid')
                 record.errors.on(:email).should == record.errors.generate_message(:email, :not_found)
                 ActionMailer::Base.deliveries.length.should == 0
               end

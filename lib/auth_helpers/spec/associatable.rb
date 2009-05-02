@@ -12,9 +12,6 @@ module AuthHelpers
         polymorphic = !!klass.columns.detect{ |c| c.name == "#{association}_type" }
 
         base.class_eval do
-          should_belong_to association, :validate => true, :dependent => :destroy,
-                                        :autosave => true, :polymorphic => polymorphic
-
           it "should validate associated #{association}" do
             associatable = base.described_class.create(@valid_attributes.merge(:"#{association}_attributes" => {}))
             associatable.should_not be_valid

@@ -6,33 +6,32 @@ module AuthHelpers
       def self.included(base)
         base.class_eval do
           before(:each) do
-            @member = OpenStruct.new(:email               => 'recipient@email.com',
-                                     :confirmation_code   => '0123456789',
-                                     :reset_password_code => 'abcdefghij')
+            @record = OpenStruct.new(:email            => 'recipient@email.com',
+                                     :perishable_token => '0123456789')
           end
 
           it "should deliver new account notification" do
-            email = ::AuthHelpers::Notifier.create_new_account(@member)
+            email = ::AuthHelpers::Notifier.create_create_confirmation(@record)
             email.to.should == [ 'recipient@email.com' ]
-            email.body.should match(/#{@member.confirmation_code}/)
+            email.body.should match(/#{@record.perishable_token}/)
           end
 
           it "should deliver email changed notification" do
-            email = ::AuthHelpers::Notifier.create_email_changed(@member)
+            email = ::AuthHelpers::Notifier.create_update_confirmation(@record)
             email.to.should == [ 'recipient@email.com' ]
-            email.body.should match(/#{@member.confirmation_code}/)
+            email.body.should match(/#{@record.perishable_token}/)
           end
 
           it "should deliver reset password code" do
-            email = ::AuthHelpers::Notifier.create_reset_password(@member)
+            email = ::AuthHelpers::Notifier.create_reset_password(@record)
             email.to.should == [ 'recipient@email.com' ]
-            email.body.should match(/#{@member.reset_password_code}/)
+            email.body.should match(/#{@record.perishable_token}/)
           end
 
           it "should resend confirmation code" do
-            email = ::AuthHelpers::Notifier.create_confirmation_code(@member)
+            email = ::AuthHelpers::Notifier.create_resend_confirmation(@record)
             email.to.should == [ 'recipient@email.com' ]
-            email.body.should match(/#{@member.confirmation_code}/)
+            email.body.should match(/#{@record.perishable_token}/)
           end
         end
       end

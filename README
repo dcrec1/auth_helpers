@@ -9,20 +9,9 @@ You can also read this README in pretty html at the GitHub project Wiki page:
 Description
 -----------
 
-AuthHelpers is a collection of modules to include in your model to deal with
-authentication.
-
-Why? Authentication is something that you need to do right since the beginning,
-otherwise it will haunt you until the end of the project.
-
-Gladly, Rails community has two awesome gems for this: Clearance and AuthLogic.
-While the first gives you a simple but full, ready-to-go engine, the second
-is a complex, fully featured authencation library.
-
-While working in different projects, requisites change and sometimes you need
-something that works between something simple and something fully featured. This
-is the scope of AuthHelpers: you have modules and you include them where you
-want.
+AuthHelpers is a collection of modules to improve your Authlogic models. It
+mainly exposes some convenience methods to help on confirmation and passwords
+management, it also deals automatically with associations and notifications.
 
 Installation
 ------------
@@ -41,14 +30,15 @@ Modules
 -------
 
   class Account < ActiveRecord::Base
-    SALT = APP_NAME
+    acts_as_authentic do |a|
+      a.validations_scope = :accountable_type
+      a.require_password_confirmation = false
+    end
 
     include AuthHelpers::Model::Associatable
-    include AuthHelpers::Model::Authenticable
     include AuthHelpers::Model::Confirmable
     include AuthHelpers::Model::Recoverable
-    include AuthHelpers::Model::Rememberable
-    include AuthHelpers::Model::Validatable
+    include AuthHelpers::Model::Updatable
   end
 
 == Associatable
@@ -58,53 +48,45 @@ in the table. This module exists because, whenever it's possible, I follow the
 pattern of having an account model and then all accountable objects uses this
 model (it autodetects polymorphic associations too).
 
-== Authenticable
-
-It adds password, salt and encrypt behavior. Adds find_and_authenticate class
-method and authenticate?(password) as instance method. It requires a constant
-named SALT set in your model. 
-
 == Confirmable
 
-Adds the confirmation_code handling. It sends an e-mail to the user on account
-creation, and adds find_and_confirm, find_and_resend_confirmation_code as class
-methods and confirmed? and confirm as instance methods.
+Adds the confirmation handling. It sends an e-mail to the user on account
+creation, and adds find_and_confirm, find_and_resend_confirmation_instructions
+as class methods plus confirmed? and confirm! as instance methods.
 
-When used with Authenticable, also sends an e-mail with a new confirmation code
-whenever the user changes his e-mail address.
+When used with Updatable, also sends an e-mail the user changes his e-mail address.
 
 == Recoverable
 
-Adds the reset_password_code handling. Adds find_and_resend_confirmation_code
-and find_and_reset_password class methods.
+Adds the reset password code handling. Adds find_and_resend_confirmation_instructions
+and find_and_reset_password class methods plus reset_password instance method.
 
-== Rememberable
+== Updatable
 
-Manages a token to be stored in cookies. Adds find_by_remember_me_token (which
-only returns a record if the token hasn't expired yet), remember_me! and forget_me!
-methods.
+It adds email and password confirmations and hack into update_attributes to
+ensure the another confirmation instruction is sent when the user changes the
+e-mail.
 
-Whenever used with Authentication, it handles the remember_me method inside
-find_and_authenticate.
+Authlogic already supports password confirmation, but it's coupled with the
+validates_length_of :password_confirmation, which is unecessary. So in order
+to use this module, is advisable to disable require_password_confirmation from
+Authlogic.
 
-== Validatable
-
-Add validations to your e-mail and password. If you have a constant in your model
-named SCOPE, it will add this to validate_uniqueness_of.
+  acts_as_authentic do |a|
+    a.require_password_confirmation = false
+  end
 
 Specs
 -----
 
-All those modules comes with specs, that's why the library has not tests per se.
+All modules come with specs, that's why the library does not have tests per se.
 So if you want to test the Account model declared above, just do:
 
   describe Account do
     include AuthHelpers::Spec::Associatable
-    include AuthHelpers::Spec::Authenticable
     include AuthHelpers::Spec::Confirmable
     include AuthHelpers::Spec::Recoverable
-    include AuthHelpers::Spec::Rememberable
-    include AuthHelpers::Spec::Validatable
+    include AuthHelpers::Spec::Updatable
 
     before(:each) do
       @valid_attributes = {
@@ -120,28 +102,8 @@ So if you want to test the Account model declared above, just do:
     end
   end
 
-The only requisite you have for the tests is to have a @valid_attributes instance
-variable set with a hash of valid attributes. You also need Remarkable to run
-those tests.
-
-Migrations
-----------
-
-While AuthHelpers gives you the flexibity to choose which model you want to add
-your validations, it takes from you the freedom to choose what are the column
-names. However it makes easier to create your migrations. This is a migration up
-example for the Account model above:
-
-  create_table :accounts do |t|
-    t.references :accountable, :polymorphic => true
-    t.extend AuthHelpers::Migration
-
-    t.authenticable
-    t.confirmable
-    t.recoverable
-    t.rememberable
-    t.timestamps
-  end
+The only requirment you have for the tests is to have a @valid_attributes
+instance variable set with a hash of valid attributes.
 
 Notifications
 -------------
@@ -155,12 +117,32 @@ want to prettify your notification views, so you just need to do:
 Then make a copy of the plugin views folder to your app/views and start to work
 on them.
 
-Need more?
-----------
+Notification has some basic specs which fail if you don't include the perishable
+token in your emails. Just put a file in spec/models/auth_helpers/notifier.rb
+with the following contents:
 
-I'm open to extend this library to include more modules. So if you want an
-Invitable module, fork the project, add it and then send it to me. I will pull
-it in gladly.
+  require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+
+  module AuthHelpers
+    describe Notifier do
+      include AuthHelpers::Spec::Notifier
+    end  end
+
+I18n
+----
+
+Those helpers rely on I18n. Assuming the account model below, you need to
+configure the following messages:
+
+  activerecord:
+    errors:
+      models:
+        account:
+          already_confirmed: was already confirmed
+          not_found: could not be found. Are you sure you gave the right e-mail address?
+          perishable_token:
+            invalid_confirmation: is invalid. Are you sure you copied the right link from your e-mail?
+            invalid_reset_password: is invalid. Are you sure you copied the right link from your e-mail?
 
 Example app
 -----------

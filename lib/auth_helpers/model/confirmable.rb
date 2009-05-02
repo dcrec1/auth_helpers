@@ -8,76 +8,66 @@ module AuthHelpers
     module Confirmable
       def self.included(base)
         base.extend ClassMethods
-        base.send :before_create, :set_confirmation_code
-        base.send :after_create,  :send_new_account_notification
+        base.send :after_create, :send_confirmation_instructions
       end
 
-      # Returns true if is not a new record and the confirmation code is blank.
+      # Returns true if is not a new record and confirmed_at is not blank.
       #
       def confirmed?
-        !self.new_record? && self.confirmation_code.blank?
+        !(self.new_record? || self.confirmed_at.nil?)
       end
 
-      # Confirms an account by setting :confirmation_code to nil and setting the
-      # confirmed_at field.
+      # Confirms the record by setting the confirmed at.
       #
       def confirm!
-        self.confirmation_code = nil
-        self.confirmed_at = Time.now.utc
-        return self.save(false)
+        update_attribute(:confirmed_at, Time.now.utc)
       end
 
-      protected
-
-        # Generates a confirmation_code and sets confirmation_sent_at.
-        # Does not save the object because it's used as a filter.
-        #
-        def set_confirmation_code
-          self.confirmation_code    = AuthHelpers.generate_unique_string_for(self.class, :confirmation_code, 40)
-          self.confirmation_sent_at = Time.now.utc
-          return true
-        end
-
-        # Send a notification to new account. Used as filter.
-        #
-        def send_new_account_notification
-          AuthHelpers::Notifier.deliver_new_account(self)
-        end
+      # Send confirmation isntructions in different scenarios. It resets the
+      # perishable token, confirmed_at date and set the confirmation_sent_at
+      # datetime.
+      #
+      def send_confirmation_instructions(on=:create)
+        self.reset_perishable_token
+        self.confirmed_at = nil
+        self.confirmation_sent_at = Time.now.utc
+        self.save(false)
+        AuthHelpers::Notifier.send(:"deliver_#{on}_confirmation", self)
+      end
 
       module ClassMethods
 
-        # Receives a confirmation code, find the respective account and tries to set its confirmation code to nil.
-        # If something goes wrong, return an account object with errors.
+        # Receives the perishable token and try to find a record to confirm the
+        # account. If it can't find the record, returns a new record with an
+        # error set on the perishable token.
         #
-        def find_and_confirm(sent_confirmation_code)
-          confirmable = AuthHelpers.find_or_initialize_by_unless_blank(self, :confirmation_code, sent_confirmation_code)
-
-          if confirmable.new_record?
-            confirmable.errors.add :confirmation_code, :invalid
-          else
+        def find_and_confirm(options={})
+          if confirmable = self.find_using_perishable_token(options[:perishable_token])
             confirmable.confirm!
+            confirmable
+          else
+            AuthHelpers.new_with_perishable_token_error(self, :invalid_confirmation, options)
           end
-
-          return confirmable
         end
 
-        # Receives a hash with email and tries to find the account to resend the confirmation code.
-        # If the e-mail can't be found or the account is already confirmed, return an account object
-        # with errors.
+        # Receives a hash with email and tries to find a record to resend the
+        # confirmation instructions. If the record can't be found or it's already
+        # confirmed, set the appropriate error messages and return the object.
         #
-        def find_and_resend_confirmation_code(options = {})
+        def find_and_resend_confirmation_instructions(options = {})
           confirmable = AuthHelpers.find_or_initialize_by_unless_blank(self, :email, options[:email])
 
           if confirmable.new_record?
-            confirmable.errors.add :email, :not_found
+            confirmable.errors.add(:email, :not_found)
           elsif confirmable.confirmed?
-            confirmable.errors.add :email, :already_confirmed
+            confirmable.errors.add(:email, :already_confirmed)
           else
-            AuthHelpers::Notifier.deliver_confirmation_code(confirmable)
+            confirmable.send_confirmation_instructions(:resend)
           end
 
           return confirmable
         end
+
       end
 
     end

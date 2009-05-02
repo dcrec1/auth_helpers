@@ -16,39 +16,40 @@ module AuthHelpers
   class Notifier < ActionMailer::Base
     class << self; attr_accessor :sender, :content_type end
 
-    def new_account(record)
-      @subject = I18n.t 'actionmailer.auth_helpers.new_account', :default => 'New account'
-      set_ivars!(:confirmable, record)
+    def create_confirmation(record)
+      @subject = I18n.t 'actionmailer.auth_helpers.create_confirmation', :default => 'Create confirmation'
+      set_ivars!(record)
     end
 
-    def email_changed(record)
-      @subject = I18n.t 'actionmailer.auth_helpers.email_changed', :default => 'You changed your e-mail'
-      set_ivars!(:confirmable, record)
+    def update_confirmation(record)
+      @subject = I18n.t 'actionmailer.auth_helpers.update_confirmation', :default => 'Update e-mail confirmation'
+      set_ivars!(record)
     end
 
     def reset_password(record)
       @subject = I18n.t 'actionmailer.auth_helpers.reset_password', :default => 'Reset password'
-      set_ivars!(:recoverable, record)
+      set_ivars!(record)
     end
 
-    def confirmation_code(record)
-      @subject = I18n.t 'actionmailer.auth_helpers.confirmation_code', :default => 'Confirmation code'
-      set_ivars!(:confirmable, record)
+    def resend_confirmation(record)
+      @subject = I18n.t 'actionmailer.auth_helpers.resend_confirmation', :default => 'Confirmation code'
+      set_ivars!(record)
     end
 
     protected
 
-      def set_ivars!(assign, record)
-        @from         = self.class.sender
-        @content_type = self.class.content_type
-        @body[assign] = record
-        @recipients   = record.email
-        @sent_on      = Time.now.utc
-        @headers      = {}
+      def set_ivars!(record)
+        @from          = self.class.sender
+        @content_type  = self.class.content_type
+        @recipients    = record.email
+        @sent_on       = Time.now.utc
+        @headers       = {}
+        @body[:record] = record
+        @body[record.class.name.downcase] = record
       end
 
   end
 end
 
-AuthHelpers::Notifier.content_type  = 'text/html'
-AuthHelpers::Notifier.template_root = File.join(File.dirname(__FILE__), '..', '..', 'views')
+AuthHelpers::Notifier.content_type  ||= 'text/html'
+AuthHelpers::Notifier.template_root ||= File.join(File.dirname(__FILE__), '..', '..', 'views')
