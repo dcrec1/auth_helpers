@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name     = "auth_helpers"
-  s.version  = "0.2.0"
+  s.version  = "0.2.1"
   s.date     = "2009-04-24"
   s.summary  = "AuthHelpers is a collection of modules to improve your Authlogic models."
   s.email    = "jose.valim@gmail.com"
@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
     "lib/auth_helpers/model/confirmable.rb",
     "lib/auth_helpers/model/recoverable.rb",
     "lib/auth_helpers/model/updatable.rb",
+    "lib/auth_helpers/spec/associatable.rb",
     "lib/auth_helpers/spec/confirmable.rb",
     "lib/auth_helpers/spec/notifier.rb",
     "lib/auth_helpers/spec/recoverable.rb",
