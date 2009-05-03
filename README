@@ -20,7 +20,7 @@ management for free, if you inherit from the Recoverable controller:
   class AccountPasswordsController < AuthHelpers::Controller:Recoverable
   end
 
-This functionality is powered by InheritedResources, available at:
+This functionality is powered by InheritedResources, which is available at:
 
   http://github.com/josevalim/inherited_resources
 
@@ -36,6 +36,11 @@ following:
 If you want it as plugin, just do:
 
    script/plugin install git://github.com/josevalim/auth_helpers.git
+
+Example app
+-----------
+
+  http://github.com/josevalim/starter
 
 Modules
 -------
@@ -113,7 +118,7 @@ So if you want to test the Account model declared above, just do:
     end
   end
 
-The only requirment you have for the tests is to have a @valid_attributes
+The only requirement you have for the tests is to have a @valid_attributes
 instance variable set with a hash of valid attributes.
 
 Notifications
@@ -156,10 +161,14 @@ configure the following messages:
             invalid_confirmation: is invalid. Are you sure you copied the right link from your e-mail?
             invalid_reset_password: is invalid. Are you sure you copied the right link from your e-mail?
 
-Example app
------------
+Need more?
+----------
 
-http://github.com/josevalim/starter
+Right now, this plugin contains the modules that I needed so far. If you are
+building an invitation system on top of your authlogic models, you could fork
+the project and add the Invitable module. Uou will never have to write it again
+in your next projects and it shouldn't be harder than inheriting a few modules
+and few controllers.
 
 Bugs and Feedback
 -----------------

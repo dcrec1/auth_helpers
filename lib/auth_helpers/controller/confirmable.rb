@@ -3,8 +3,8 @@ module AuthHelpers
     class Confirmable < ::ApplicationController
       unloadable
 
-      include InheritedResources::BaseHelpers
-      include AuthHelpers::Controller::Helpers
+      include ::InheritedResources::BaseHelpers
+      include ::AuthHelpers::Controller::Helpers
 
       class << self
         alias :has_confirmable :set_class_accessors_with_class

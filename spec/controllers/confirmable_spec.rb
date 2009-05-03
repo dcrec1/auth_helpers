@@ -38,7 +38,7 @@ describe Accountable::ConfirmationsController do
       expects :errors, :on => mock_accountable, :returns => []
 
       should_redirect_to proc { new_accountable_session_url }, :with_expectations => true
-      should_set_the_flash :notice, :to => "Accountable was successfully confirmed."
+      should_set_the_flash :notice, :to => /accountable was successfully confirmed/im
     end
 
     describe "with invalid params" do
