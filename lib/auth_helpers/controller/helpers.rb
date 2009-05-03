@@ -16,17 +16,20 @@ module AuthHelpers
 
             base.send :cattr_accessor, :resource_class, :instance_name, :route_name, :instance_writter => false
 
-            resource = base.controller_path.gsub('/', '_')
-            resource.gsub!(/_#{self.name.downcase}?$/, '')
+            # Converts:
+            #
+            #   Mockable::ConfirmationsController #=> mockable
+            #   MockablePasswordsController       #=> mockable
+            #
+            resource = base.controller_path.gsub('/', '_').split('_')[0..-2].join('_')
 
-            base.resource_class = begin
-              resource.classify.constantize
+            begin
+              base.resource_class = resource.classify.constantize
+              base.route_name     = resource.singularize
+              base.instance_name  = resource.singularize
             rescue NameError
               nil
             end
-
-            base.route_name = resource.singularize
-            base.instance_name = resource.singularize
           end
 
           def set_class_accessors_with_class(klass)

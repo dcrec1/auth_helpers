@@ -1,6 +1,6 @@
 AuthHelpers
 License: MIT
-Version: 0.2.1
+Version: 0.3.0
 
 You can also read this README in pretty html at the GitHub project Wiki page:
 
@@ -12,6 +12,17 @@ Description
 AuthHelpers is a collection of modules to improve your Authlogic models. It
 mainly exposes some convenience methods to help on confirmation and passwords
 management, it also deals automatically with associations and notifications.
+
+Authlogic also include some controllers to deal with the modules added. For
+example, if you add Recoverable to your model, you can have all password
+management for free, if you inherit from the Recoverable controller:
+
+  class AccountPasswordsController < AuthHelpers::Controller:Recoverable
+  end
+
+This functionality is powered by InheritedResources, available at:
+
+  http://github.com/josevalim/inherited_resources
 
 Installation
 ------------

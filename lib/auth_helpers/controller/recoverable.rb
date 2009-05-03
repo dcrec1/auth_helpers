@@ -56,7 +56,7 @@ module AuthHelpers
         respond_block, redirect_block = select_block_by_arity(block)
 
         if object.errors.empty?
-          set_flash_message!(:notice, 'Your password was successfully updated.')
+          set_flash_message!(:notice, 'Your password was successfully reset.')
 
           respond_to_with_dual_blocks(true, block) do |format|
             format.html { redirect_to_block_or_scope_to(redirect_block, :session) }
