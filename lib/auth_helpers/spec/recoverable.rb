@@ -32,7 +32,7 @@ module AuthHelpers
 
               it "should not reset password if the given reset password code is invalid" do
                 record = base.described_class.find_and_reset_password(:perishable_token => 'invalid_token', :password => '654321', :password_confirmation => '654321')
-                record.errors.on(:perishable_token).should == record.errors.generate_message(:perishable_token, :invalid_reset_password, :default => [:invalid])
+                record.errors.on(:perishable_token).should == record.errors.generate_message(:perishable_token, :invalid_reset_password, :default => [:"messages.invalid"])
                 @recoverable.reload
                 @recoverable.valid_password?('654321').should be_false
               end

@@ -15,7 +15,7 @@ module AuthHelpers
   def self.new_with_perishable_token_error(klass, message=:invalid, options={})
     record = klass.new(options)
     record.perishable_token = options[:perishable_token]
-    record.errors.add(:perishable_token, message, :default => [:invalid])
+    record.errors.add(:perishable_token, message, :default => [:"messages.invalid"])
     record
   end
 
