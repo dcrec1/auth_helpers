@@ -54,7 +54,7 @@ module AuthHelpers
             describe 'with an invalid perishable token' do
               it "should set an error message" do
                 record = base.described_class.find_and_confirm(:perishable_token => "invalid token")
-                record.errors.on(:perishable_token).should == record.errors.generate_message(:perishable_token, :invalid_confirmation, :default => :invalid)
+                record.errors.on(:perishable_token).should == record.errors.generate_message(:perishable_token, :invalid_confirmation, :default => [:invalid])
               end
 
               it "should return a new record with the perishable token set" do
