@@ -9,7 +9,6 @@
 
 * First version with the following modules:
 
-  AuthHelpers::Model::Associatable
   AuthHelpers::Model::Confirmable
   AuthHelpers::Model::Recoverable
   AuthHelpers::Model::Updatable

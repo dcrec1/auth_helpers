@@ -1,6 +1,6 @@
 AuthHelpers
 License: MIT
-Version: 0.3.0
+Version: 0.3.3
 
 You can also read this README in pretty html at the GitHub project Wiki page:
 
@@ -51,18 +51,10 @@ Modules
       a.require_password_confirmation = false
     end
 
-    include AuthHelpers::Model::Associatable
     include AuthHelpers::Model::Confirmable
     include AuthHelpers::Model::Recoverable
     include AuthHelpers::Model::Updatable
   end
-
-== Associatable
-
-This module automatically creates a belongs_to association for the first *_id
-in the table. This module exists because, whenever it's possible, I follow the
-pattern of having an account model and then all accountable objects uses this
-model (it autodetects polymorphic associations too).
 
 == Confirmable
 
@@ -99,7 +91,6 @@ All modules come with specs, that's why the library does not have tests per se.
 So if you want to test the Account model declared above, just do:
 
   describe Account do
-    include AuthHelpers::Spec::Associatable
     include AuthHelpers::Spec::Confirmable
     include AuthHelpers::Spec::Recoverable
     include AuthHelpers::Spec::Updatable
